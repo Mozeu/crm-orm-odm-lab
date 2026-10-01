@@ -1,88 +1,95 @@
-# CRM ORM/ODM Lab
+# Laboratorio API de CRM con ORM / ODM
 
-API REST de un CRM básico que combina un ORM (Sequelize + PostgreSQL) y un ODM (Mongoose + MongoDB).
+## Datos académicos
 
-## Stack
+| Campo | Detalle |
+|---|---|
+| **Universidad** | Universidad Autónoma de Chihuahua |
+| **Facultad** | Facultad de Ingeniería |
+| **Carrera** | Ingeniería en Computación |
+| **Materia** | Desarrollo de Aplicaciones Web |
+| **Docente** | Mtro. Luis Antonio Ramírez Martínez |
+| **Actividad** | Tarea 5: Laboratorio API de CRM con ORM / ODM |
+| **Alumno** | Manuel Ramírez Contreras |
+| **Matrícula** | 385706 |
+| **Fecha de entrega** | 04/10/2026 |
 
-- Node.js 22, Express 5, CommonJS
-- Sequelize + PostgreSQL 16 (`User`, `Company`, `Contact`)
-- Mongoose + MongoDB 7 (`Activity`)
-- Jest + Supertest
-- GitHub Codespaces, Dev Containers, Docker Compose
-- Supervisor (`npm run dev`)
+## Descripción
 
-## Arquitectura
+API REST de un CRM básico construida con Node.js y Express que usa dos motores de base de datos al mismo tiempo: PostgreSQL (mediante el ORM Sequelize) para los datos relacionales `User`, `Company` y `Contact`, y MongoDB (mediante el ODM Mongoose) para las actividades (`Activity`), cuya estructura de `metadata` varía según el tipo. El repositorio traía 8 retos con código intencionalmente incompleto (`TODO CHALLENGE 01` a `08`) que se completaron en la carpeta `controllers/`.
 
-```text
-GitHub Codespace
-│
-├── app       Node.js 22  ──┬── Sequelize ──> postgres (PostgreSQL)
-│                           └── Mongoose  ──> mongo    (MongoDB)
-├── postgres
-└── mongo
-```
+## Objetivo
 
-La aplicación se conecta por nombre de servicio (`postgres`, `mongo`). Las credenciales de desarrollo llegan como variables de entorno definidas en `.devcontainer/docker-compose.yml` (ver `.env.example`).
+Implementar la capa de persistencia de una API REST utilizando un ORM (Sequelize) para una base de datos relacional (PostgreSQL) y un ODM (Mongoose) para una base de datos documental (MongoDB), y verificar su comportamiento mediante pruebas automáticas hasta obtener `Test Suites: 9 passed, 9 total`.
 
-## Iniciar el Codespace
+## Tecnologías utilizadas
 
-1. En GitHub: **Code → Codespaces → Create codespace on main**.
-2. Espera a que se levanten los tres servicios (`app`, `postgres`, `mongo`). `postCreateCommand` ejecuta `npm install`.
+- JavaScript (Node.js)
+- Express
+- Sequelize (ORM) + PostgreSQL
+- Mongoose (ODM) + MongoDB
+- Jest (pruebas automáticas)
+- Docker / Dev Containers (contenedores `app`, `postgres` y `mongo`)
+- GitHub y GitHub Codespaces
+- curl (pruebas manuales de endpoints)
 
-## Instalar dependencias
+## Requisitos previos
+
+- Cuenta de GitHub con acceso a GitHub Codespaces.
+- Un navegador web.
+- No se requiere instalar Node.js, PostgreSQL ni MongoDB localmente: todo corre dentro del Codespace, que levanta los tres contenedores y ejecuta `npm install` automáticamente.
+
+## Ejecución
+
+Desde la terminal del Codespace:
 
 ```bash
-npm install
+# Ejecutar todas las pruebas
+npm test
+
+# Ejecutar la suite de un solo reto (ejemplo: reto 01)
+npx jest tests/challenge01.test.js
+
+# Iniciar el servidor en modo desarrollo (se reinicia solo)
+npm run dev
+
+# Restablecer las bases de datos a los datos iniciales
+npm run seed
 ```
 
-## Seed y reset
+## Funcionalidades / uso
 
-```bash
-npm run seed    # inserta datos deterministas (3 users, 4 companies, 8 contacts, 10 activities)
-npm run reset   # elimina y recrea tablas/base de datos y vuelve a sembrar
-```
+Retos resueltos (todos en `controllers/`):
 
-## Iniciar la API
-
-```bash
-npm start       # node ./bin/www
-npm run dev     # supervisor ./bin/www
-```
-
-Servidor en el puerto `3000` (variable `PORT`).
+| Reto | Motor | Endpoint | Qué hace |
+|---|---|---|---|
+| 01 | Sequelize | `GET /contacts` | Lista todos los contactos |
+| 02 | Mongoose | `GET /activities` | Lista todas las actividades |
+| 03 | Sequelize | `GET /companies?industry=Technology` | Filtra compañías por industria |
+| 04 | Mongoose | `GET /activities?type=CALL` | Filtra actividades por tipo |
+| 05 | Sequelize | `GET /companies/:id` | Devuelve la compañía con sus contactos (`contacts`) |
+| 06 | Mongoose | `POST /activities` | Crea una actividad guardando `metadata` flexible |
+| 07 | Sequelize | `PUT /contacts/:id` | Actualiza un contacto conservando los campos no enviados |
+| 08 | Mongoose | `PUT /activities/:id` | Actualiza una actividad y devuelve el documento actualizado |
 
 ## Pruebas
 
-```bash
-npm test
+Las pruebas se ejecutan con Jest mediante `npm test`. Hay 9 suites: `health.test.js` (verifica que la app y las conexiones funcionen) y `challenge01.test.js` a `challenge08.test.js` (una por reto). Las pruebas validan el comportamiento de la API (códigos de respuesta y contenido), no la forma en que se escribe el código. Antes de cada suite la base de datos se restablece a los datos de prueba (seed).
+
+Resultado esperado:
+
+```
+Test Suites: 9 passed, 9 total
 ```
 
-Cada suite restablece PostgreSQL y MongoDB antes de ejecutarse y cierra las conexiones al terminar.
+## Respuestas
 
-## Endpoints
 
-| Método | Ruta | Descripción |
-|---|---|---|
-| GET | `/health` | Health check |
-| GET | `/users` | Listar usuarios |
-| GET | `/users/:id` | Obtener usuario |
-| POST | `/users` | Crear usuario |
-| PUT | `/users/:id` | Actualizar usuario |
-| DELETE | `/users/:id` | Eliminar usuario |
-| GET | `/companies` | Listar compañías (`?industry=`) |
-| GET | `/companies/:id` | Obtener compañía |
-| POST | `/companies` | Crear compañía |
-| PUT | `/companies/:id` | Actualizar compañía |
-| DELETE | `/companies/:id` | Eliminar compañía |
-| GET | `/contacts` | Listar contactos |
-| GET | `/contacts/:id` | Obtener contacto |
-| POST | `/contacts` | Crear contacto |
-| PUT | `/contacts/:id` | Actualizar contacto |
-| DELETE | `/contacts/:id` | Eliminar contacto |
-| GET | `/activities` | Listar actividades (`?type=`) |
-| GET | `/activities/:id` | Obtener actividad |
-| POST | `/activities` | Crear actividad |
-| PUT | `/activities/:id` | Actualizar actividad |
-| DELETE | `/activities/:id` | Eliminar actividad |
+## Evidencia
 
-Los errores se devuelven como JSON: `{ "error": "Contact not found" }`.
+![npm test con las 9 suites en verde](imagen)
+
+
+## Autor
+
+Manuel Ramírez Contreras — 385706
